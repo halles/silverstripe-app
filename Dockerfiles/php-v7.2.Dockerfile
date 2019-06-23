@@ -3,7 +3,7 @@ FROM php:7.2-apache
 
 # OS packages
 RUN apt-get -y update && apt-get -y upgrade && apt-get install -y \
-        ssl-cert
+        ssl-cert \
         mysql-client \
         zlib1g-dev \
         libicu-dev \
