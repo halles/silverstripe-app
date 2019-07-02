@@ -27,7 +27,7 @@ RUN \
     # https://github.com/silverstripe/sspak
     curl -sS https://silverstripe.github.io/sspak/install | php -- /usr/local/bin; \
     # Makes binaries specified by composer accessible to bash
-    echo 'PATH=$PATH:/var/www/vendor/bin' >> ~/.bashrc; \
+    echo 'PATH=$PATH:/var/www/vendor/bin' >> /etc/bash.bashrc; \
     # Changes user id of www-data to 1000 for permissions and shares
     # compatibility with other machines
     usermod -u 1000 www-data; \
