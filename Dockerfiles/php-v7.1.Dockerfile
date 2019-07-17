@@ -4,7 +4,7 @@ FROM php:7.1-apache
 # OS packages
 RUN apt-get -y update && apt-get -y upgrade && apt-get install -y \
         ssl-cert \
-        mysql-client \
+        mariadb-client \
         zlib1g-dev \
         libicu-dev \
         libpng-dev \
