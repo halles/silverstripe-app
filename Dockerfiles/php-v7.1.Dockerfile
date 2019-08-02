@@ -20,6 +20,7 @@ RUN apt-get -y update && apt-get -y upgrade && apt-get install -y \
         jq \
         nano \
         vim \
+        apt-utils \
     --no-install-recommends && rm -r /var/lib/apt/lists/*
 
 RUN \
@@ -55,7 +56,8 @@ RUN composer -V
 # Install node
 RUN curl -sL https://deb.nodesource.com/setup_8.x | bash -
 RUN apt-get install --no-install-recommends -y \
-        nodejs
+        nodejs \
+        npm
 
 # Update npm and yarn
 RUN npm install -g npm yarn
