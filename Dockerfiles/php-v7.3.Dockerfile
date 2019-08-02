@@ -42,11 +42,14 @@ RUN \
 RUN docker-php-ext-configure intl \
     && docker-php-ext-configure gd --with-png-dir=/usr/lib --with-jpeg-dir=/usr/lib --with-webp-dir=/usr/lib
 RUN docker-php-ext-install \
-    pdo_mysql \
-    mysqli \
-    intl \
-    gd \
-    bcmath
+        pdo_mysql \
+        mysqli \
+        intl \
+        gd \
+        bcmath; \
+    pecl install xdebug; \
+    docker-php-ext-enable xdebug;
+
 COPY ["./conf/php/", "/usr/local/etc/php/"]
 
 # Composer binary
