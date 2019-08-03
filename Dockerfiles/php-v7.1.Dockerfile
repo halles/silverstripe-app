@@ -50,7 +50,8 @@ RUN docker-php-ext-install \
     pecl install xdebug; \
     docker-php-ext-enable xdebug;
 
-COPY ["./conf/php/", "/usr/local/etc/php/"]
+COPY ["./conf/php/php.ini", "/usr/local/etc/php/php.ini"]
+COPY ["./conf/php/docker-php-ext*", "/usr/local/etc/php/conf.d/"]
 
 # Composer binary
 RUN curl -sS https://getcomposer.org/installer | php -- --filename=composer --install-dir=/usr/local/bin
