@@ -1,8 +1,13 @@
 # Extend from current stable php apache
 FROM php:7.2-apache
 
+# Extra Repositories
+RUN curl -sL https://deb.nodesource.com/setup_8.x | bash -
+
 # OS packages
-RUN apt-get -y update && apt-get -y upgrade && apt-get install -y \
+RUN apt-get -y update; \
+    apt-get -y upgrade;\
+    apt-get install -y --no-install-recommends \
         ssl-cert \
         mariadb-client \
         zlib1g-dev \
@@ -21,14 +26,23 @@ RUN apt-get -y update && apt-get -y upgrade && apt-get install -y \
         nano \
         vim \
         apt-utils \
-    --no-install-recommends && rm -r /var/lib/apt/lists/*
+        net-tools \
+        iputils-ping \
+        iproute2 \
+        nodejs \
+        npm; \
+    rm -r /var/lib/apt/lists/*
 
 RUN \
     # Installs SSPAK for SilverStripe
     # https://github.com/silverstripe/sspak
     curl -sS https://silverstripe.github.io/sspak/install | php -- /usr/local/bin; \
+    # Composer binary
+    curl -sS https://getcomposer.org/installer | php -- --filename=composer --install-dir=/usr/local/bin; \
     # Makes binaries specified by composer accessible to bash
-    echo 'PATH=$PATH:/var/www/vendor/bin' >> /etc/bash.bashrc; \
+    echo 'PATH=$PATH:/var/www/vendor/bin' >> /etc/bash.bashrc;
+
+RUN \
     # Changes user id of www-data to 1000 for permissions and shares
     # compatibility with other machines
     usermod -u 1000 www-data; \
@@ -38,7 +52,7 @@ RUN \
     # Gives ownership of /var/solr to www-data to allow index creation
     mkdir /var/solr && chown -R www-data:www-data /var/solr;
 
-# PHP Extensions and Config
+# Installs PHP Extensions
 RUN docker-php-ext-configure intl \
     && docker-php-ext-configure gd --with-png-dir=/usr/lib --with-jpeg-dir=/usr/lib --with-webp-dir=/usr/lib
 RUN docker-php-ext-install \
@@ -49,16 +63,6 @@ RUN docker-php-ext-install \
         bcmath; \
     pecl install xdebug; \
     docker-php-ext-enable xdebug;
-
-# Composer binary
-RUN curl -sS https://getcomposer.org/installer | php -- --filename=composer --install-dir=/usr/local/bin
-RUN composer -V
-
-# Install node
-RUN curl -sL https://deb.nodesource.com/setup_8.x | bash -
-RUN apt-get install --no-install-recommends -y \
-        nodejs \
-        npm
 
 # Update npm and yarn
 RUN npm install -g npm yarn
