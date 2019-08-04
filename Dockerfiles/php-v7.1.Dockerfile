@@ -50,8 +50,6 @@ RUN docker-php-ext-install \
     pecl install xdebug; \
     docker-php-ext-enable xdebug;
 
-COPY ["./conf/php/php.ini", "/usr/local/etc/php/php.ini"]
-COPY ["./conf/php/docker-php-ext*", "/usr/local/etc/php/conf.d/"]
 
 # Composer binary
 RUN curl -sS https://getcomposer.org/installer | php -- --filename=composer --install-dir=/usr/local/bin
@@ -66,13 +64,28 @@ RUN apt-get install --no-install-recommends -y \
 # Update npm and yarn
 RUN npm install -g npm yarn
 
+# PHP Configuration
+COPY ["./conf/php/php.ini", "/usr/local/etc/php/php.ini"]
+COPY ["./conf/php/docker-php-ext*", "/usr/local/etc/php/conf.d/"]
+
 # Apache Configuration
 COPY ["./conf/apache2/docker.conf", "/etc/apache2/sites-enabled/000-default.conf"]
 RUN \
     # Generates default SSL certificates
     make-ssl-cert generate-default-snakeoil; \
     # Generates SSL certificates for localhost
-    openssl req -newkey rsa:2048 -x509 -nodes -keyout /etc/ssl/private/localhost.key -new -out /etc/ssl/certs/localhost.cert -subj /CN=localhost -reqexts SAN -extensions SAN -config <(cat /etc/ssl/openssl.cnf <(printf '[SAN]\nsubjectAltName=DNS:localhost')) -sha256 -days 3650; \
+    cat /etc/ssl/openssl.cnf > /tmp/SSL_SAN_config; \
+    printf "[SAN]\nsubjectAltName=DNS:localhost" >> /tmp/SSL_SAN_config; \
+    openssl \
+        req -newkey rsa:2048 -x509 -nodes \
+        -keyout /etc/ssl/private/localhost.key \
+        -new \
+        -out /etc/ssl/certs/localhost.cert \
+        -subj /CN=localhost \
+        -reqexts SAN \
+        -extensions SAN \
+        -config /tmp/SSL_SAN_config \
+        -sha256 -days 3650; \
     # Adds both runtime users to the ssl-cert group
     usermod --append --groups ssl-cert root; \
     usermod --append --groups ssl-cert www-data;\
